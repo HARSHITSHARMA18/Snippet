@@ -153,44 +153,43 @@ const Explore = () => {
       setGeneratedPost(""); // Clear previous output
       await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate delay
       setLoadingState("Summarising content");
+      // const canSummarize = await ai.summarizer.capabilities();
+      // let summarizer;
+      // // if (canSummarize.available === "no") {
+      // //   // The Summarizer API isn't usable.
+      // //   console.log("Summarizer api isn't usable")};
+      // if (canSummarize.available === "readily") {
+      //   // The Summarizer API can be used immediately .
+      //   console.log("ready to summarise");
+      //   summarizer = await ai.summarizer.create();
+      // } else {
+      //   // The Summarizer API can be used after the model is downloaded.
+      //   console.log("Summarization Modal not available, downloading start");
+      //   summarizer = await ai.summarizer.create();
+      //   summarizer.addEventListener("downloadprogress", (e) => {
+      //     console.log(e.loaded, e.total);
+      //   });
+      //   console.log("Summaziation modal downloading sucessfully");
+      //   await summarizer.ready;
+      // }
+
       const canSummarize = await ai.summarizer.capabilities();
       let summarizer;
-      if (canSummarize.available === "no") {
-        // The Summarizer API isn't usable.
-        console.log("Summarizer api isn't usable");
-      } else if (canSummarize.available === "readily") {
-        // The Summarizer API can be used immediately .
-        console.log("ready to summarise");
+      if (canSummarize && canSummarize.available !== "no") {
         summarizer = await ai.summarizer.create();
-      } else {
-        // The Summarizer API can be used after the model is downloaded.
-        console.log("Summarization Modal not available, downloading start");
-        summarizer = await ai.summarizer.create();
-        summarizer.addEventListener("downloadprogress", (e) => {
-          console.log(e.loaded, e.total);
-        });
-        console.log("Summaziation modal downloading sucessfully");
-        await summarizer.ready;
+        if (canSummarize.available === "readily") {
+          // The summarizer can immediately be used.
+          console.log("ready");
+          summarizer = await ai.summarizer.create();
+        } else {
+          // The summarizer can be used after the model download.
+          summarizer = await ai.summarizer.create();
+          summarizer.addEventListener("downloadprogress", (e) => {
+            console.log(e.loaded, e.total);
+          });
+          await summarizer.ready;
+        }
       }
-
-      /*const canSummarize = await ai.summarizer.capabilities();
-    let summarizer;
-    if (canSummarize && canSummarize.available !== "no") {
-      summarizer = await ai.summarizer.create();
-      if (canSummarize.available === 'readily') {
-        // The summarizer can immediately be used.
-        console.log("ready");
-        summarizer = await ai.summarizer.create();
-      } else {
-        // The summarizer can be used after the model download.
-        summarizer = await ai.summarizer.create();
-        summarizer.addEventListener('downloadprogress', (e) => {
-          console.log(e.loaded, e.total);
-        });
-        await summarizer.ready;
-      }
-    
-    }*/
       const result = await summarizer.summarize(desc);
       //await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate delay
 
