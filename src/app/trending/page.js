@@ -363,6 +363,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import { TrendingUp } from "lucide-react";
 
 const TopNews = () => {
   const [news, setNews] = useState([]);
@@ -569,9 +570,20 @@ const TopNews = () => {
 
   return (
     <div className="min-h-screen text-gray-100 bg-black bg-grid-white/[0.08]">
-      <h1 className="text-6xl text-center font-bold py-8 text-white">
-        Top 10 Global News
-      </h1>
+      {/* <h1 className="text-6xl text-center font-bold py-8 text-white">
+        <span className="text-[#2CFBCD]">Top 10</span> Global News
+      </h1> */}
+
+      <div className=" flex flex-row items-center justify-center text-center py-8 px-4">
+        <h1 className="text-6xl md:text-5xl font-bold mb-2 text-white">
+          Trending
+        </h1>
+
+        <div className="flex items-center justify-center ml-2 ">
+          <TrendingUp size={40} color="#2CFBCD" />
+        </div>
+      </div>
+
       <main className="max-w-7xl mx-auto px-4 py-8">
         <section className="flex flex-col space-y-6">
           {news.map((article, index) => (
@@ -581,7 +593,8 @@ const TopNews = () => {
             >
               {/* Numeric Indicator */}
               <div className="absolute top-0 left-0 bg-[#2CFBCD] text-black font-bold py-2 px-4 rounded-br-lg">
-                {"#"}{index + 1}
+                {"#"}
+                {index + 1}
               </div>
 
               {/* Image Section */}

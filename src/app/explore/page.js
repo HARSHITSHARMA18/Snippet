@@ -100,13 +100,13 @@ const Explore = () => {
 
   const countries = ["india", "us", "au", "gb", "ca"];
   const genres = [
-    "general",
-    "technology",
-    "sports",
-    "science",
-    "politics",
-    "business",
-    "entertainment",
+    "General",
+    "Technology",
+    "Sports",
+    "Science",
+    "Politics",
+    "Business",
+    "Entertainment",
   ];
 
   const summary2 =
@@ -125,7 +125,7 @@ const Explore = () => {
     setLoadingState("");
   };
 
-  const handleGenreClick = (genre) =>{
+  const handleGenreClick = (genre) => {
     setSelectedGenre(genre);
   };
 
@@ -325,56 +325,47 @@ LinkedinPost :
         </h1>
 
         <div className="flex items-center justify-center ml-2 ">
-          <Search size={40} />
+          <Search size={40} color="#2CFBCD" />
         </div>
       </div>
 
       <main className="max-w-7xl mx-auto px-4 py-8">
         <section className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 space-y-4 sm:space-y-0 sm:space-x-4">
-         {/* <div className="flex items-center space-x-2">
-            <label htmlFor="genre" className="text-gray-300">
-              Select Genre:
-            </label>
-            <select
-              id="genre"
-              value={genre}
-              onChange={(e) => setGenre(e.target.value)}
-              className="bg-[#1a1a1aa9] text-gray-100 rounded px-3 py-1 focus:outline-none focus:ring-2 focus:ring-[#2CFBCD]"
-            >
-              {genres.map((g) => (
-                <option key={g} value={g} className="capitalize">
-                  {g.charAt(0).toUpperCase() + g.slice(1)}
-                </option>
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+            <div className="genre-buttons flex flex-wrap -mx-1">
+              {genres.map((genre, index) => (
+                <button
+                  key={index}
+                  className={`genre-button flex items-center space-x-2 p-2 rounded-lg border border-white/30 font-medium hover:bg-[#2CFBCD] hover:text-black duration-300 m-1 text-sm sm:text-base ${
+                    selectedGenre === genre
+                      ? "active bg-[#2CFBCD] text-black hover:text-black"
+                      : ""
+                  }`}
+                  onClick={() => handleGenreClick(genre)}
+                >
+                  {genre}
+                </button>
               ))}
-            </select>
-          </div>*/}
-          <div className="genre-buttons flex items-center space-x-2">
-        {genres.map((genre, index) => (
-          <button
-            key={index}
-            className={`genre-button  flex items-center space-x-2 ${selectedGenre === genre ? "active" : ""}`}
-            onClick={() => handleGenreClick(genre)}
-          >
-            {genre}
-          </button>
-        ))}
-        </div>
+            </div>
 
-
-          <div className="flex items-center space-x-2">
-            <label htmlFor="timeFilter" className="text-gray-300">
-              Filter by Time:
-            </label>
-            <select
-              id="timeFilter"
-              value={timeFilter}
-              onChange={(e) => setTimeFilter(e.target.value)}
-              className="bg-[#1a1a1aa9] text-gray-100 rounded px-3 py-1 focus:outline-none focus:ring-2 focus:ring-[#2CFBCD]"
-            >
-              <option value="24h">Last 24 hours</option>
-              <option value="2d">Last 2 days</option>
-              <option value="7d">Last 7 days</option>
-            </select>
+            <div className="flex items-center space-x-2 p-2">
+              <label
+                htmlFor="timeFilter"
+                className="text-gray-300 text-sm sm:text-base whitespace-nowrap"
+              >
+                Filter by Time:
+              </label>
+              <select
+                id="timeFilter"
+                value={timeFilter}
+                onChange={(e) => setTimeFilter(e.target.value)}
+                className="bg-[#1a1a1aa9] text-gray-100 rounded px-3 py-1 focus:outline-none focus:ring-2 focus:ring-[#2CFBCD] text-sm sm:text-base"
+              >
+                <option value="24h">Last 24 hours</option>
+                <option value="2d">Last 2 days</option>
+                <option value="7d">Last 7 days</option>
+              </select>
+            </div>
           </div>
         </section>
 
