@@ -366,13 +366,18 @@ import React, { useState, useEffect } from "react";
 
 const TopNews = () => {
   const [news, setNews] = useState([]);
+  const [modalNews, setModalNews] = useState(null); //for modal pop-up
+  const [generatedPost, setGeneratedPost] = useState(""); //for the generated linkedin post
+  const [isGenerating, setIsGenerating] = useState(false); // Controls the generation flow
+  const [loadingState, setLoadingState] = useState("");
+
   const API_KEY = process.env.NEXT_PUBLIC_API_KEY; // Your NewsAPI key
   const SHARED_COUNT_API_KEY = process.env.NEXT_PUBLIC_SHARED_COUNT_API_KEY; // Engagement API key
 
   // Fetch top 10 global news based on engagement
   useEffect(() => {
     const fetchNews = async () => {
-      const url = `https://newsapi.org/v2/top-headlines?q=india&apiKey=${API_KEY}`;
+      const url = `https://newsapi.org/v2/top-headlines?category=general&apiKey=${API_KEY}`;
 
       try {
         const response = await fetch(url);
@@ -422,6 +427,133 @@ const TopNews = () => {
       return 0;
     }
   };
+   
+   // Open modal and set modal news
+  const openModal = (article) => {
+    setModalNews(article);
+    setGeneratedPost("");
+    generateLinkedInPost(article.description);
+  };
+  // Close modal
+  const closeModal = () => {
+    setModalNews(null);
+    setGeneratedPost("");
+    setLoadingState("");
+  };
+
+
+    // Function to generate LinkedIn post using the Prompt API
+    const generateLinkedInPost = async (desc) => {
+        try {
+          console.log("generating");
+          setLoadingState("Reading Contents");
+          setIsGenerating(true);
+          setGeneratedPost(""); // Clear previous output
+          await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate delay
+          setLoadingState("Summarising content");
+          const canSummarize = await ai.summarizer.capabilities();
+          let summarizer;
+          if (canSummarize && canSummarize.available !== "no") {
+            summarizer = await ai.summarizer.create();
+            if (canSummarize.available === "readily") {
+              // The summarizer can immediately be used.
+              console.log("ready");
+              summarizer = await ai.summarizer.create();
+            } else {
+              // The summarizer can be used after the model download.
+              summarizer = await ai.summarizer.create();
+              summarizer.addEventListener("downloadprogress", (e) => {
+                console.log(e.loaded, e.total);
+              });
+              await summarizer.ready;
+            }
+          }
+          const result = await summarizer.summarize(desc);
+          //await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate delay
+          const { available, defaultTemperature, defaultTopK, maxTopK } =
+            await ai.languageModel.capabilities();
+          setLoadingState("Generating Post");
+          let session;
+          if (available !== "no") {
+            console.log("ready");
+            session = await ai.languageModel.create({
+              systemPrompt: "You are a professional content writer",
+            });
+          } else {
+            // Model is not available, download it first
+            console.log("Model is not available. Starting download...");
+            session = await ai.languageModel.create({
+              monitor(m) {
+                m.addEventListener("downloadprogress", (e) => {
+                  console.log(`Downloaded ${e.loaded} of ${e.total} bytes.`);
+                });
+              },
+            });
+          }
+          const prompt = `
+    Below are some examples showing an article summary and its corresponding LinkedIn post format. Notice how the post emphasizes key points using **bold text** and relevant emojis to make it visually appealing:
+    Summary: OpenAI is introducing "Work with Apps" for its ChatGPT desktop app, enabling it to integrate with various coding and text-based applications on macOS. The feature currently supports developer tools like VS Code, Xcode, and Terminal, allowing users to send code directly to ChatGPT for contextual analysis without manual copy-pasting. OpenAI plans to expand compatibility to other text-based apps, particularly those that support writing tasks, and explore more general AI agent capabilities beyond text-based interactions.
+    LinkedIn Post:
+    “BREAKING: ChatGPT can now use your Mac Apps!
+    A major step toward ChatGPT acting as a full-fledged computer agent:
+     • 🖥️ Coding Power: Write code directly in Xcode or VSCode
+     • 🌐 Version Control: Make git commits in Terminal/iTerm2
+     • 🔒 Permission-Based: Only operates with your explicit permission
+     • 📅 Availability:
+       • Now live for Plus and Team users
+       • Coming soon for Enterprise and Edu users
+     • 🧪 Status: Early beta
+    Built for Over a Year
+    OpenAI has been developing this capability since early 2023.
+    🤔What’s Next?
+    ChatGPT could soon control your entire desktop environment as an “agent.” Bloomberg reports this system, called the “Operator,” may launch in January.
+    App Usage = Feedback Loop
+    App integration is a test phase for ironing out bugs before full agent release.
+    👀Competitive Landscape
+    Google DeepMind, Anthropic, and other stealth-mode startups are reportedly launching agent-like systems within weeks. Looks like no one’s taking Christmas off this year!
+    🦿Industry Impact
+    Coding AI startups might need to rethink their strategies as ChatGPT starts working directly in tools like Xcode and VSCode.
+    #AI hashtag#ChatGPT hashtag#OpenAI hashtag#MacBook hashtag#Coding
+    Summary: Mistral AI has released significant updates to its Le Chat platform, introducing new AI models and features that rival those of ChatGPT and other leading AI chatbots. Le Chat now includes features like web search with cited sources, a canvas tool, image generation, document analysis, and AI agents. Mistral has introduced two new powerful models: Pixtral Large, a 124-billion parameter multimodal model, and Mistral Large 24.11, an updated version of their flagship text model. Mistral's approach differs from its competitors by focusing on making frontier AI accessible rather than pursuing artificial general intelligence. The company offers many of its new features for free during the beta phase, contrasting with the paid offerings of competitors like OpenAI and Anthropic.
+    LinkedIn Post:
+    📣ChatGPT Killer: Mistral AI Rolls Out Major Update
+     • Web Search: Real-time info at your fingertips.
+     • Image Generation: Create visuals with Flux Pro.
+     • PDF Integration: Upload, ask, and get instant insights.
+     • Text Mastery: Rewrite, summarize, and adapt text effortlessly.
+     • Code Wizardry: Build or debug code like a pro.
+    Explore it now: https://lnkd.in/d8CgQ6sW
+    Is this the update that changes the game?
+    #ai hashtag#mistral hashtag#tech hashtag#innovation hashtag#chatgpt
+    ---
+    Now, create a LinkedIn post from the following summary given the example above. Make sure to:
+    1. **Bold key points** for emphasis.
+    2. use **relevant emojis** to mkae the post visually engaging.
+    3. Follow a professionl yet creative tone.
+    4. Do not include any explanations or notes at the end of the post.
+    Summary: ${result}
+    LinkedinPost :
+        `;
+          // Get the generated LinkedIn post
+          const result1 = await session.promptStreaming(prompt);
+          for await (const chunk of result1) {
+            setGeneratedPost(chunk);
+            //return chunk;
+          }
+          setIsGenerating(false);
+          session.destroy();
+          //return; // Clean up the generated result
+        } catch (error) {
+          console.log("Error generating LinkedIn post:", error);
+          setGeneratedPost("Error generating post. Please try again.");
+          setIsGenerating(false);
+          setLoadingState("Failed!");
+          //return "Error generating post. Please try again.";
+        }
+      };
+
+
+  
 
   return (
     <div className="min-h-screen text-gray-100 bg-black bg-grid-white/[0.08]">
@@ -488,8 +620,45 @@ const TopNews = () => {
           ))}
         </section>
       </main>
-    </div>
+      {modalNews && (
+         <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4">
+           <div className="bg-black/80 rounded-lg max-w-md w-full p-6">
+             <div className="flex justify-between items-center mb-4">
+               <h3 className="text-lg font-semibold text-[#2CFBCD]">
+                 {modalNews.title}
+               </h3>
+               <button
+                 onClick={closeModal}
+                 className="text-gray-400 hover:text-white transition-colors p-2 "
+               >
+                 ✕
+               </button>
+             </div>
+             <div className="space-y-4">
+               <label className="block text-gray-300">
+                 Generated LinkedIn Post:
+               </label>
+               <textarea
+                 className="w-full h-32 bg-[#1a1a1aa9] border border-white/60 rounded p-2 text-gray-100 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                 value={generatedPost}
+                 readOnly
+                 placeholder={isGenerating ? loadingState : ""}
+               />
+             </div>
+             <div className="flex items-center justify-center space-x-3 mt-6">
+               <button
+                 onClick={() => navigator.clipboard.writeText(generatedPost)}
+                 disabled={isGenerating || !generatedPost}
+                className="px-4 py-2  text-[#2CFBCD] rounded-lg border-2 border-white/50 border-dashed hover:text-white transition-colors disabled:opacity-50"
+               >
+                 Copy
+               </button>
+             </div>
+           </div>
+         </div>
+    )}
+   </div>
   );
-};
+ };
 
 export default TopNews;
