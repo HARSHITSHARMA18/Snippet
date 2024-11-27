@@ -32,9 +32,11 @@ export default function HeroSection() {
             and more
           </p>
           <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+            <Link href ={"/explore"}>
             <button className="px-6 py-2 bg-[#2CFBCD] text-black font-semibold rounded-full hover:bg-opacity-80 transition duration-300">
               Explore Now
             </button>
+            </Link>
             <Link href={"#footer"}>
               <button className="px-6 py-2 border border-[#2CFBCD] text-white font-semibold rounded-full hover:bg-[#2CFBCD] hover:text-black transition duration-300">
                 Read More

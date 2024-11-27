@@ -581,7 +581,7 @@ const TopNews = () => {
             >
               {/* Numeric Indicator */}
               <div className="absolute top-0 left-0 bg-[#2CFBCD] text-black font-bold py-2 px-4 rounded-br-lg">
-                {index + 1}
+                {"#"}{index + 1}
               </div>
 
               {/* Image Section */}
