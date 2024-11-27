@@ -330,7 +330,7 @@ LinkedinPost :
       </div>
 
       <main className="max-w-7xl mx-auto px-4 py-8">
-        <section className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 space-y-4 sm:space-y-0 sm:space-x-4">
+        {/* <section className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 space-y-4 sm:space-y-0 sm:space-x-4">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
             <div className="genre-buttons flex flex-wrap -mx-1">
               {genres.map((genre, index) => (
@@ -360,6 +360,45 @@ LinkedinPost :
                 value={timeFilter}
                 onChange={(e) => setTimeFilter(e.target.value)}
                 className="bg-[#1a1a1aa9] text-gray-100 rounded px-3 py-1 focus:outline-none focus:ring-2 focus:ring-[#2CFBCD] text-sm sm:text-base"
+              >
+                <option value="24h">Last 24 hours</option>
+                <option value="2d">Last 2 days</option>
+                <option value="7d">Last 7 days</option>
+              </select>
+            </div>
+          </div>
+        </section> */}
+
+        <section className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 space-y-4 sm:space-y-0 w-full">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 w-full">
+            <div className="genre-buttons flex flex-wrap -mx-1 w-full sm:w-auto">
+              {genres.map((genre, index) => (
+                <button
+                  key={index}
+                  className={`genre-button flex items-center space-x-2 p-2 rounded-lg border border-white/30 font-medium hover:bg-[#2CFBCD] hover:text-black duration-300 m-1 text-sm sm:text-base ${
+                    selectedGenre === genre
+                      ? "active bg-[#2CFBCD] text-black hover:text-black"
+                      : ""
+                  }`}
+                  onClick={() => handleGenreClick(genre)}
+                >
+                  {genre}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex items-center space-x-2 p-2 w-full sm:w-auto">
+              <label
+                htmlFor="timeFilter"
+                className="text-gray-300 text-sm sm:text-base whitespace-nowrap"
+              >
+                Filter by Time:
+              </label>
+              <select
+                id="timeFilter"
+                value={timeFilter}
+                onChange={(e) => setTimeFilter(e.target.value)}
+                className="bg-[#1a1a1aa9] text-gray-100 rounded px-3 py-1 focus:outline-none focus:ring-2 focus:ring-[#2CFBCD] text-sm sm:text-base flex-grow"
               >
                 <option value="24h">Last 24 hours</option>
                 <option value="2d">Last 2 days</option>
@@ -401,7 +440,7 @@ LinkedinPost :
                 <div className="flex flex-row items-center justify-center mt-4 mb-4 gap-4">
                   <button
                     href={article.url}
-                    className="bg-[#2CFBCD] hover:bg-[#2CFBCD]/60 text-black font-bold py-2 px-4 rounded-full transition-colors"
+                    className="bg-[#2CFBCD] hover:bg-[#2CFBCD]/60 text-black font-bold py-2 px-4  rounded-full md:rounded-md transition-colors"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -413,7 +452,7 @@ LinkedinPost :
                       e.stopPropagation();
                       openModal(article);
                     }}
-                    className="bg-[#2CFBCD] hover:bg-[#2CFBCD]/60 text-black font-bold py-2 px-4 rounded-full transition-colors"
+                    className="bg-[#2CFBCD] hover:bg-[#2CFBCD]/60 text-black font-bold py-2 px-4  rounded-full md:rounded-md transition-colors"
                   >
                     Generate Post
                   </button>
@@ -427,7 +466,7 @@ LinkedinPost :
         <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className="bg-black/90 rounded-xl max-w-2xl w-full p-6 shadow-lg border border-[#2CFBCD]/20">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-bold text-[#2CFBCD] truncate pr-4">
+              <h3 className="text-xl font-bold text-[#2CFBCD]  pr-4">
                 {modalNews.title}
               </h3>
               <button
