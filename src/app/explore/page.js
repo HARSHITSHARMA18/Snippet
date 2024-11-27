@@ -5,7 +5,7 @@ import { Search } from "lucide-react";
 
 const Explore = () => {
   const [news, setNews] = useState([]);
-  const [genre, setGenre] = useState("general"); // Default genre
+  const [selectedGenre, setSelectedGenre] = useState("general"); // Default genre
   const [country, setcountry] = useState("india");
   const [timeFilter, setTimeFilter] = useState("24h"); // Default time filter
   const [expandedTile, setExpandedTile] = useState(null); // For expanded news tile
@@ -42,7 +42,7 @@ const Explore = () => {
   bollywoodhungama.com,indiaforums.com,pinkvilla.com,thewallstreetjournal.com,cnn.com,bbc.com,nytimes.com,theguardian.com,reuters.com,aljazeera.com,forbes.com,dainikbhaskar.com,
         amarujala.com,patrikalive.com,business-standard.com,economictimes.indiatimes.com
       `.replace(/\s+/g, "");
-      const url = `https://newsapi.org/v2/everything?q=${genre}&domains=${domains}&from=${fromDate}&sortBy=popularity&apiKey=${API_KEY}`;
+      const url = `https://newsapi.org/v2/everything?q=${selectedGenre}&domains=${domains}&from=${fromDate}&sortBy=popularity&apiKey=${API_KEY}`;
 
       try {
         const response = await fetch(url);
@@ -71,7 +71,7 @@ const Explore = () => {
     };
 
     fetchNews();
-  }, [genre, country, timeFilter]);
+  }, [selectedGenre, country, timeFilter]);
 
   //fetching the engagement via sharedcount
   const fetchEngagement = async (url) => {
@@ -123,6 +123,10 @@ const Explore = () => {
     setModalNews(null);
     setGeneratedPost("");
     setLoadingState("");
+  };
+
+  const handleGenreClick = (genre) =>{
+    setSelectedGenre(genre);
   };
 
   const handleTileClick = (index) => {
@@ -327,7 +331,7 @@ LinkedinPost :
 
       <main className="max-w-7xl mx-auto px-4 py-8">
         <section className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 space-y-4 sm:space-y-0 sm:space-x-4">
-          <div className="flex items-center space-x-2">
+         {/* <div className="flex items-center space-x-2">
             <label htmlFor="genre" className="text-gray-300">
               Select Genre:
             </label>
@@ -343,7 +347,19 @@ LinkedinPost :
                 </option>
               ))}
             </select>
-          </div>
+          </div>*/}
+          <div className="genre-buttons flex items-center space-x-2">
+        {genres.map((genre, index) => (
+          <button
+            key={index}
+            className={`genre-button  flex items-center space-x-2 ${selectedGenre === genre ? "active" : ""}`}
+            onClick={() => handleGenreClick(genre)}
+          >
+            {genre}
+          </button>
+        ))}
+        </div>
+
 
           <div className="flex items-center space-x-2">
             <label htmlFor="timeFilter" className="text-gray-300">
