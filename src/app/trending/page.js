@@ -362,7 +362,7 @@
 
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 const TopNews = () => {
   const [news, setNews] = useState([]);
@@ -408,6 +408,22 @@ const TopNews = () => {
     fetchNews();
   }, []);
 
+  const [isCopied, setIsCopied] = useState(false);
+  const textareaRef = useRef(null);
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  }, [generatedPost]);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(generatedPost);
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000);
+  };
+
   // Fetching engagement via SharedCount API
   const fetchEngagement = async (url) => {
     const sharedCountUrl = `https://api.sharedcount.com/v1.0/?url=${encodeURIComponent(
@@ -427,8 +443,8 @@ const TopNews = () => {
       return 0;
     }
   };
-   
-   // Open modal and set modal news
+
+  // Open modal and set modal news
   const openModal = (article) => {
     setModalNews(article);
     setGeneratedPost("");
@@ -441,56 +457,55 @@ const TopNews = () => {
     setLoadingState("");
   };
 
-
-    // Function to generate LinkedIn post using the Prompt API
-    const generateLinkedInPost = async (desc) => {
-        try {
-          console.log("generating");
-          setLoadingState("Reading Contents");
-          setIsGenerating(true);
-          setGeneratedPost(""); // Clear previous output
-          await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate delay
-          setLoadingState("Summarising content");
-          const canSummarize = await ai.summarizer.capabilities();
-          let summarizer;
-          if (canSummarize && canSummarize.available !== "no") {
-            summarizer = await ai.summarizer.create();
-            if (canSummarize.available === "readily") {
-              // The summarizer can immediately be used.
-              console.log("ready");
-              summarizer = await ai.summarizer.create();
-            } else {
-              // The summarizer can be used after the model download.
-              summarizer = await ai.summarizer.create();
-              summarizer.addEventListener("downloadprogress", (e) => {
-                console.log(e.loaded, e.total);
-              });
-              await summarizer.ready;
-            }
-          }
-          const result = await summarizer.summarize(desc);
-          //await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate delay
-          const { available, defaultTemperature, defaultTopK, maxTopK } =
-            await ai.languageModel.capabilities();
-          setLoadingState("Generating Post");
-          let session;
-          if (available !== "no") {
-            console.log("ready");
-            session = await ai.languageModel.create({
-              systemPrompt: "You are a professional content writer",
+  // Function to generate LinkedIn post using the Prompt API
+  const generateLinkedInPost = async (desc) => {
+    try {
+      console.log("generating");
+      setLoadingState("Reading Contents");
+      setIsGenerating(true);
+      setGeneratedPost(""); // Clear previous output
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate delay
+      setLoadingState("Summarising content");
+      const canSummarize = await ai.summarizer.capabilities();
+      let summarizer;
+      if (canSummarize && canSummarize.available !== "no") {
+        summarizer = await ai.summarizer.create();
+        if (canSummarize.available === "readily") {
+          // The summarizer can immediately be used.
+          console.log("ready");
+          summarizer = await ai.summarizer.create();
+        } else {
+          // The summarizer can be used after the model download.
+          summarizer = await ai.summarizer.create();
+          summarizer.addEventListener("downloadprogress", (e) => {
+            console.log(e.loaded, e.total);
+          });
+          await summarizer.ready;
+        }
+      }
+      const result = await summarizer.summarize(desc);
+      //await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate delay
+      const { available, defaultTemperature, defaultTopK, maxTopK } =
+        await ai.languageModel.capabilities();
+      setLoadingState("Generating Post");
+      let session;
+      if (available !== "no") {
+        console.log("ready");
+        session = await ai.languageModel.create({
+          systemPrompt: "You are a professional content writer",
+        });
+      } else {
+        // Model is not available, download it first
+        console.log("Model is not available. Starting download...");
+        session = await ai.languageModel.create({
+          monitor(m) {
+            m.addEventListener("downloadprogress", (e) => {
+              console.log(`Downloaded ${e.loaded} of ${e.total} bytes.`);
             });
-          } else {
-            // Model is not available, download it first
-            console.log("Model is not available. Starting download...");
-            session = await ai.languageModel.create({
-              monitor(m) {
-                m.addEventListener("downloadprogress", (e) => {
-                  console.log(`Downloaded ${e.loaded} of ${e.total} bytes.`);
-                });
-              },
-            });
-          }
-          const prompt = `
+          },
+        });
+      }
+      const prompt = `
     Below are some examples showing an article summary and its corresponding LinkedIn post format. Notice how the post emphasizes key points using **bold text** and relevant emojis to make it visually appealing:
     Summary: OpenAI is introducing "Work with Apps" for its ChatGPT desktop app, enabling it to integrate with various coding and text-based applications on macOS. The feature currently supports developer tools like VS Code, Xcode, and Terminal, allowing users to send code directly to ChatGPT for contextual analysis without manual copy-pasting. OpenAI plans to expand compatibility to other text-based apps, particularly those that support writing tasks, and explore more general AI agent capabilities beyond text-based interactions.
     LinkedIn Post:
@@ -534,26 +549,23 @@ const TopNews = () => {
     Summary: ${result}
     LinkedinPost :
         `;
-          // Get the generated LinkedIn post
-          const result1 = await session.promptStreaming(prompt);
-          for await (const chunk of result1) {
-            setGeneratedPost(chunk);
-            //return chunk;
-          }
-          setIsGenerating(false);
-          session.destroy();
-          //return; // Clean up the generated result
-        } catch (error) {
-          console.log("Error generating LinkedIn post:", error);
-          setGeneratedPost("Error generating post. Please try again.");
-          setIsGenerating(false);
-          setLoadingState("Failed!");
-          //return "Error generating post. Please try again.";
-        }
-      };
-
-
-  
+      // Get the generated LinkedIn post
+      const result1 = await session.promptStreaming(prompt);
+      for await (const chunk of result1) {
+        setGeneratedPost(chunk);
+        //return chunk;
+      }
+      setIsGenerating(false);
+      session.destroy();
+      //return; // Clean up the generated result
+    } catch (error) {
+      console.log("Error generating LinkedIn post:", error);
+      setGeneratedPost("Error generating post. Please try again.");
+      setIsGenerating(false);
+      setLoadingState("Failed!");
+      //return "Error generating post. Please try again.";
+    }
+  };
 
   return (
     <div className="min-h-screen text-gray-100 bg-black bg-grid-white/[0.08]">
@@ -621,44 +633,81 @@ const TopNews = () => {
         </section>
       </main>
       {modalNews && (
-         <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4">
-           <div className="bg-black/80 rounded-lg max-w-md w-full p-6">
-             <div className="flex justify-between items-center mb-4">
-               <h3 className="text-lg font-semibold text-[#2CFBCD]">
-                 {modalNews.title}
-               </h3>
-               <button
-                 onClick={closeModal}
-                 className="text-gray-400 hover:text-white transition-colors p-2 "
-               >
-                 ✕
-               </button>
-             </div>
-             <div className="space-y-4">
-               <label className="block text-gray-300">
-                 Generated LinkedIn Post:
-               </label>
-               <textarea
-                 className="w-full h-32 bg-[#1a1a1aa9] border border-white/60 rounded p-2 text-gray-100 focus:outline-none focus:ring-2 focus:ring-cyan-400"
-                 value={generatedPost}
-                 readOnly
-                 placeholder={isGenerating ? loadingState : ""}
-               />
-             </div>
-             <div className="flex items-center justify-center space-x-3 mt-6">
-               <button
-                 onClick={() => navigator.clipboard.writeText(generatedPost)}
-                 disabled={isGenerating || !generatedPost}
-                className="px-4 py-2  text-[#2CFBCD] rounded-lg border-2 border-white/50 border-dashed hover:text-white transition-colors disabled:opacity-50"
-               >
-                 Copy
-               </button>
-             </div>
-           </div>
-         </div>
-    )}
-   </div>
+        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-black/90 rounded-xl max-w-2xl w-full p-6 shadow-lg border border-[#2CFBCD]/20">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-bold text-[#2CFBCD] truncate pr-4">
+                {modalNews.title}
+              </h3>
+              <button
+                onClick={closeModal}
+                className="text-gray-400 hover:text-white transition-colors p-2 rounded-full hover:bg-white/10"
+                aria-label="Close modal"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <label
+                htmlFor="generated-post"
+                className="block text-gray-300 text-sm font-medium"
+              >
+                Generated Post:
+              </label>
+              <div className="relative">
+                <textarea
+                  id="generated-post"
+                  ref={textareaRef}
+                  className="w-full min-h-[120px] max-h-[300px] bg-[#1a1a1aa9] border border-white/20 rounded-lg p-3 text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#2CFBCD] focus:border-transparent resize-none scrollbar-thin scrollbar-thumb-[#2CFBCD] scrollbar-track-gray-800"
+                  value={generatedPost}
+                  readOnly
+                  placeholder={
+                    isGenerating
+                      ? loadingState
+                      : "Your generated post will appear here..."
+                  }
+                  style={{ overflow: "auto" }}
+                />
+                {isGenerating && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg">
+                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#2CFBCD]"></div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end mt-6">
+              <button
+                onClick={handleCopy}
+                disabled={isGenerating || !generatedPost}
+                className={`px-6 py-2 rounded-lg font-medium transition-all duration-300 ${
+                  isCopied
+                    ? "bg-[#2CFBCD] text-black"
+                    : "bg-transparent text-[#2CFBCD] border-2 border-[#2CFBCD] hover:bg-[#2CFBCD] hover:text-black"
+                } disabled:opacity-50 disabled:cursor-not-allowed`}
+              >
+                {isCopied ? "Copied!" : "Copy"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
- };
+};
 
 export default TopNews;

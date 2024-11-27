@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Search } from "lucide-react";
 
 const Explore = () => {
@@ -142,6 +142,22 @@ const Explore = () => {
 
     // Open LinkedIn in a new tab
     window.open(linkedInURL, "_blank");
+  };
+
+  const [isCopied, setIsCopied] = useState(false);
+  const textareaRef = useRef(null);
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  }, [generatedPost]);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(generatedPost);
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000);
   };
 
   // Function to generate LinkedIn post using the Prompt API
@@ -400,49 +416,76 @@ LinkedinPost :
           ))}
         </section>
       </main>
-
       {modalNews && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-black/80 rounded-lg max-w-md w-full p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold text-[#2CFBCD]">
+        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-black/90 rounded-xl max-w-2xl w-full p-6 shadow-lg border border-[#2CFBCD]/20">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-bold text-[#2CFBCD] truncate pr-4">
                 {modalNews.title}
               </h3>
               <button
                 onClick={closeModal}
-                className="text-gray-400 hover:text-white transition-colors p-2 "
+                className="text-gray-400 hover:text-white transition-colors p-2 rounded-full hover:bg-white/10"
+                aria-label="Close modal"
               >
-                ✕
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
               </button>
             </div>
 
             <div className="space-y-4">
-              <label className="block text-gray-300">
-                Generated LinkedIn Post:
+              <label
+                htmlFor="generated-post"
+                className="block text-gray-300 text-sm font-medium"
+              >
+                Generated Post:
               </label>
-              <textarea
-                className="w-full h-32 bg-[#1a1a1aa9] border border-white/60 rounded p-2 text-gray-100 focus:outline-none focus:ring-2 focus:ring-cyan-400"
-                value={generatedPost}
-                readOnly
-                placeholder={isGenerating ? loadingState : ""}
-              />
+              <div className="relative">
+                <textarea
+                  id="generated-post"
+                  ref={textareaRef}
+                  className="w-full min-h-[120px] max-h-[300px] bg-[#1a1a1aa9] border border-white/20 rounded-lg p-3 text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#2CFBCD] focus:border-transparent resize-none scrollbar-thin scrollbar-thumb-[#2CFBCD] scrollbar-track-gray-800"
+                  value={generatedPost}
+                  readOnly
+                  placeholder={
+                    isGenerating
+                      ? loadingState
+                      : "Your generated post will appear here..."
+                  }
+                  style={{ overflow: "auto" }}
+                />
+                {isGenerating && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg">
+                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#2CFBCD]"></div>
+                  </div>
+                )}
+              </div>
             </div>
 
-            <div className="flex items-center justify-center space-x-3 mt-6">
+            <div className="flex items-center justify-end mt-6">
               <button
-                onClick={() => navigator.clipboard.writeText(generatedPost)}
+                onClick={handleCopy}
                 disabled={isGenerating || !generatedPost}
-                className="px-4 py-2  text-[#2CFBCD] rounded-lg border-2 border-white/50 border-dashed hover:text-white transition-colors disabled:opacity-50"
+                className={`px-6 py-2 rounded-lg font-medium transition-all duration-300 ${
+                  isCopied
+                    ? "bg-[#2CFBCD] text-black"
+                    : "bg-transparent text-[#2CFBCD] border-2 border-[#2CFBCD] hover:bg-[#2CFBCD] hover:text-black"
+                } disabled:opacity-50 disabled:cursor-not-allowed`}
               >
-                Copy
+                {isCopied ? "Copied!" : "Copy"}
               </button>
-              {/* <button
-                onClick={handlePostToLinkedIn}
-                disabled={isGenerating || !generatedPost}
-                className="px-4 py-2 bg-[#2CFBCD] text-black font-medium rounded-lg  hover:bg-[#2CFBCD]/60 transition-colors disabled:opacity-50"
-              >
-                Post
-              </button> */}
             </div>
           </div>
         </div>
