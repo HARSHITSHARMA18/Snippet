@@ -433,7 +433,7 @@ const TopNews = () => {
           {news.map((article, index) => (
             <div
               key={index}
-              className="bg-[#1a1a1aa9] rounded-lg overflow-hidden shadow-lg hover:shadow-[#2CFBCD]/50 transition-shadow duration-300 flex flex-row items-center relative"
+              className="bg-[#1a1a1aa9] rounded-lg overflow-hidden shadow-lg hover:shadow-[#2CFBCD]/50  transition-shadow duration-300 transition-transform hover:scale-110 flex flex-row items-center relative"
             >
               {/* Numeric Indicator */}
               <div className="absolute top-0 left-0 bg-[#2CFBCD] text-black font-bold py-2 px-4 rounded-br-lg">
@@ -441,11 +441,11 @@ const TopNews = () => {
               </div>
 
               {/* Image Section */}
-              <div className="w-1/3">
+              <div className="w-1/3 ">
                 <img
                   src={article.urlToImage || "/placeholder.svg"}
                   alt={article.title}
-                  className="w-full h-48 object-cover"
+                  className="w-full p-2 rounded-lg h-48 object-cover"
                 />
               </div>
 

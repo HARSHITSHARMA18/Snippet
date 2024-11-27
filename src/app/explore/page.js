@@ -350,7 +350,7 @@ LinkedinPost :
           {news.map((article, index) => (
             <div
               key={index}
-              className="bg-[#1a1a1aa9] rounded-lg overflow-hidden shadow-lg hover:shadow-[#2CFBCD]/50 transition-shadow duration-300 text-center"
+              className="bg-[#1a1a1aa9] rounded-lg overflow-hidden shadow-lg hover:shadow-[#2CFBCD]/50 transition-shadow duration-300 transition-transform hover:scale-105 text-center"
             >
               <img
                 src={article.urlToImage || "/placeholder.svg"}
