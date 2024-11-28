@@ -6,13 +6,15 @@ import { Search } from "lucide-react";
 const Explore = () => {
   const [news, setNews] = useState([]);
   const [selectedGenre, setSelectedGenre] = useState("general"); // Default genre
-  const [country, setcountry] = useState("india");
+  //const [country, setcountry] = useState("india");
   const [timeFilter, setTimeFilter] = useState("24h"); // Default time filter
   const [expandedTile, setExpandedTile] = useState(null); // For expanded news tile
   const [modalNews, setModalNews] = useState(null); //for modal pop-up
   const [generatedPost, setGeneratedPost] = useState(""); //for the generated linkedin post
   const [isGenerating, setIsGenerating] = useState(false); // Controls the generation flow
   const [loadingState, setLoadingState] = useState("");
+  const [isCopied, setIsCopied] = useState(false);  //copies the content 
+  const textareaRef = useRef(null);
 
   const API_KEY = process.env.NEXT_PUBLIC_API_KEY; // Replace with your NewsAPI key
   const SHARED_COUNT_API_KEY = process.env.NEXT_PUBLIC_SHARED_COUNT_API_KEY;
@@ -34,12 +36,13 @@ const Explore = () => {
 
       const domains =
         `timesofindia.indiatimes.com,ndtv.com,hindustantimes.com,thehindu.com,indiatoday.in,
-  foxnews.com,cbc.ca,news24.com,scroll.in,news18.com,google.com/news,bloomberg.com,
-  business-standard.com,economictimes.indiatimes.com,moneycontrol.com,financialexpress.com,
-  fortune.com,livemint.com,espncricinfo.com,espn.in,sports.ndtv.com,thebridge.in,
-  sportstar.thehindu.com,gadgets.ndtv.com,techcrunch.com,digit.in,91mobiles.com,
-  firstpost.com,buzzfeed.com,entertainmentweekly.com,filmfare.com,koimoi.com,
-  bollywoodhungama.com,indiaforums.com,pinkvilla.com,thewallstreetjournal.com,cnn.com,bbc.com,nytimes.com,theguardian.com,reuters.com,aljazeera.com,forbes.com,dainikbhaskar.com,
+         foxnews.com,cbc.ca,news24.com,scroll.in,news18.com,google.com/news,bloomberg.com,
+        business-standard.com,economictimes.indiatimes.com,moneycontrol.com,financialexpress.com,
+        fortune.com,livemint.com,espncricinfo.com,espn.in,sports.ndtv.com,thebridge.in,
+        sportstar.thehindu.com,gadgets.ndtv.com,techcrunch.com,digit.in,91mobiles.com,
+        firstpost.com,buzzfeed.com,entertainmentweekly.com,filmfare.com,koimoi.com,
+        bollywoodhungama.com,indiaforums.com,pinkvilla.com,thewallstreetjournal.com,cnn.com,
+        bbc.com,nytimes.com,theguardian.com,reuters.com,aljazeera.com,forbes.com,dainikbhaskar.com,
         amarujala.com,patrikalive.com,business-standard.com,economictimes.indiatimes.com
       `.replace(/\s+/g, "");
       const url = `https://newsapi.org/v2/everything?q=${selectedGenre}&domains=${domains}&from=${fromDate}&sortBy=popularity&apiKey=${API_KEY}`;
@@ -52,6 +55,32 @@ const Explore = () => {
         const validNews = data.articles
           .filter((article) => article.urlToImage && article.description)
           .slice(0, 15);
+        
+        //fetching the engagement via sharedcount
+        const fetchEngagement = async (url) => {
+          const sharedCountUrl = `https://api.sharedcount.com/v1.0/?url=${encodeURIComponent(
+            url
+          )}&apikey=${SHARED_COUNT_API_KEY}`;
+
+          try {
+            const response = await fetch(sharedCountUrl);
+            if (!response.ok) {
+              console.error("SharedCount API response error:", response.statusText);
+              return 0; // Return 0 in case of an error
+            }
+
+            const data = await response.json();
+
+            // Log the data to check the structure
+            console.log("SharedCount API response:", data);
+
+            return data.Facebook.total_count + data.Pinterest || 0;
+          } catch (error) {
+            console.error("Error fetching engagement:", error);
+            return 0;
+          }
+        };
+
 
         const newsWithEngagement = await Promise.all(
           validNews.map(async (article) => {
@@ -71,34 +100,34 @@ const Explore = () => {
     };
 
     fetchNews();
-  }, [selectedGenre, country, timeFilter]);
+  }, [selectedGenre, timeFilter,API_KEY,SHARED_COUNT_API_KEY]);
 
   //fetching the engagement via sharedcount
-  const fetchEngagement = async (url) => {
-    const sharedCountUrl = `https://api.sharedcount.com/v1.0/?url=${encodeURIComponent(
-      url
-    )}&apikey=${SHARED_COUNT_API_KEY}`;
+  // const fetchEngagement = async (url) => {
+  //   const sharedCountUrl = `https://api.sharedcount.com/v1.0/?url=${encodeURIComponent(
+  //     url
+  //   )}&apikey=${SHARED_COUNT_API_KEY}`;
 
-    try {
-      const response = await fetch(sharedCountUrl);
-      if (!response.ok) {
-        console.error("SharedCount API response error:", response.statusText);
-        return 0; // Return 0 in case of an error
-      }
+  //   try {
+  //     const response = await fetch(sharedCountUrl);
+  //     if (!response.ok) {
+  //       console.error("SharedCount API response error:", response.statusText);
+  //       return 0; // Return 0 in case of an error
+  //     }
 
-      const data = await response.json();
+  //     const data = await response.json();
 
-      // Log the data to check the structure
-      console.log("SharedCount API response:", data);
+  //     // Log the data to check the structure
+  //     console.log("SharedCount API response:", data);
 
-      return data.Facebook.total_count + data.Pinterest || 0;
-    } catch (error) {
-      console.error("Error fetching engagement:", error);
-      return 0;
-    }
-  };
+  //     return data.Facebook.total_count + data.Pinterest || 0;
+  //   } catch (error) {
+  //     console.error("Error fetching engagement:", error);
+  //     return 0;
+  //   }
+  // };
 
-  const countries = ["india", "us", "au", "gb", "ca"];
+  //const countries = ["india", "us", "au", "gb", "ca"];
   const genres = [
     "General",
     "Technology",
@@ -148,8 +177,8 @@ const Explore = () => {
     window.open(linkedInURL, "_blank");
   };
 
-  const [isCopied, setIsCopied] = useState(false);
-  const textareaRef = useRef(null);
+  // const [isCopied, setIsCopied] = useState(false);
+  // const textareaRef = useRef(null);
 
   useEffect(() => {
     if (textareaRef.current) {

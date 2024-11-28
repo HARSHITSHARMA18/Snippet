@@ -370,7 +370,9 @@ const TopNews = () => {
   const [modalNews, setModalNews] = useState(null); //for modal pop-up
   const [generatedPost, setGeneratedPost] = useState(""); //for the generated linkedin post
   const [isGenerating, setIsGenerating] = useState(false); // Controls the generation flow
+  const [isCopied,setIsCopied] = useState("false");
   const [loadingState, setLoadingState] = useState("");
+  const textareaRef = useRef(null);
 
   const API_KEY = process.env.NEXT_PUBLIC_API_KEY; // Your NewsAPI key
   const SHARED_COUNT_API_KEY = process.env.NEXT_PUBLIC_SHARED_COUNT_API_KEY; // Engagement API key
@@ -406,26 +408,7 @@ const TopNews = () => {
       }
     };
 
-    fetchNews();
-  }, []);
-
-  const [isCopied, setIsCopied] = useState(false);
-  const textareaRef = useRef(null);
-
-  useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
-      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
-    }
-  }, [generatedPost]);
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(generatedPost);
-    setIsCopied(true);
-    setTimeout(() => setIsCopied(false), 2000);
-  };
-
-  // Fetching engagement via SharedCount API
+    // Fetching engagement via SharedCount API
   const fetchEngagement = async (url) => {
     const sharedCountUrl = `https://api.sharedcount.com/v1.0/?url=${encodeURIComponent(
       url
@@ -444,6 +427,44 @@ const TopNews = () => {
       return 0;
     }
   };
+
+    fetchNews();
+  }, [API_KEY,SHARED_COUNT_API_KEY]);
+
+  
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  }, [generatedPost]);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(generatedPost);
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000);
+  };
+
+  // // Fetching engagement via SharedCount API
+  // const fetchEngagement = async (url) => {
+  //   const sharedCountUrl = `https://api.sharedcount.com/v1.0/?url=${encodeURIComponent(
+  //     url
+  //   )}&apikey=${SHARED_COUNT_API_KEY}`;
+
+  //   try {
+  //     const response = await fetch(sharedCountUrl);
+  //     if (!response.ok) {
+  //       console.error("SharedCount API response error:", response.statusText);
+  //       return 0;
+  //     }
+  //     const data = await response.json();
+  //     return data.Facebook.total_count + data.Pinterest || 0;
+  //   } catch (error) {
+  //     console.error("Error fetching engagement:", error);
+  //     return 0;
+  //   }
+  // };
 
   // Open modal and set modal news
   const openModal = (article) => {
