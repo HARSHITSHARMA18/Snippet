@@ -390,6 +390,26 @@ const TopNews = () => {
           .filter((article) => article.urlToImage && article.description)
           .slice(0, 20); // Fetch more to ensure we get 10 valid articles with engagement data
 
+         // Fetching engagement via SharedCount API
+        const fetchEngagement = async (url) => {
+          const sharedCountUrl = `https://api.sharedcount.com/v1.0/?url=${encodeURIComponent(
+            url
+          )}&apikey=${SHARED_COUNT_API_KEY}`;
+
+          try {
+            const response = await fetch(sharedCountUrl);
+            if (!response.ok) {
+              console.error("SharedCount API response error:", response.statusText);
+              return 0;
+            }
+            const data = await response.json();
+            return data.Facebook.total_count + data.Pinterest || 0;
+          } catch (error) {
+            console.error("Error fetching engagement:", error);
+            return 0;
+          }
+        };  
+
         const newsWithEngagement = await Promise.all(
           validNews.map(async (article) => {
             const engagement = await fetchEngagement(article.url);
@@ -408,25 +428,6 @@ const TopNews = () => {
       }
     };
 
-    // Fetching engagement via SharedCount API
-  const fetchEngagement = async (url) => {
-    const sharedCountUrl = `https://api.sharedcount.com/v1.0/?url=${encodeURIComponent(
-      url
-    )}&apikey=${SHARED_COUNT_API_KEY}`;
-
-    try {
-      const response = await fetch(sharedCountUrl);
-      if (!response.ok) {
-        console.error("SharedCount API response error:", response.statusText);
-        return 0;
-      }
-      const data = await response.json();
-      return data.Facebook.total_count + data.Pinterest || 0;
-    } catch (error) {
-      console.error("Error fetching engagement:", error);
-      return 0;
-    }
-  };
 
     fetchNews();
   }, [API_KEY,SHARED_COUNT_API_KEY]);
@@ -446,25 +447,7 @@ const TopNews = () => {
     setTimeout(() => setIsCopied(false), 2000);
   };
 
-  // // Fetching engagement via SharedCount API
-  // const fetchEngagement = async (url) => {
-  //   const sharedCountUrl = `https://api.sharedcount.com/v1.0/?url=${encodeURIComponent(
-  //     url
-  //   )}&apikey=${SHARED_COUNT_API_KEY}`;
-
-  //   try {
-  //     const response = await fetch(sharedCountUrl);
-  //     if (!response.ok) {
-  //       console.error("SharedCount API response error:", response.statusText);
-  //       return 0;
-  //     }
-  //     const data = await response.json();
-  //     return data.Facebook.total_count + data.Pinterest || 0;
-  //   } catch (error) {
-  //     console.error("Error fetching engagement:", error);
-  //     return 0;
-  //   }
-  // };
+ 
 
   // Open modal and set modal news
   const openModal = (article) => {
