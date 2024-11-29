@@ -78,8 +78,6 @@ const Explore = () => {
 
   useEffect(() => {
     const fetchNews = async () => {
-<<<<<<< HEAD
-=======
       const today = new Date();
       const fromDate = new Date(
         today.getTime() -
@@ -105,7 +103,6 @@ const Explore = () => {
       `.replace(/\s+/g, "");
       const url = `https://newsapi.org/v2/everything?q=${selectedGenre}&domains=${domains}&from=${fromDate}&sortBy=popularity&apiKey=${API_KEY}`;
 
->>>>>>> e200c33f34ab4a912800f5f9732667ceecca76ad
       try {
         const response = await fetch(
           `/api/news?genre=${selectedGenre}&timeFilter=${timeFilter}`
@@ -159,11 +156,8 @@ const Explore = () => {
     };
 
     fetchNews();
-<<<<<<< HEAD
-  }, []);
-=======
   }, [selectedGenre, timeFilter,API_KEY,SHARED_COUNT_API_KEY]);
->>>>>>> e200c33f34ab4a912800f5f9732667ceecca76ad
+
 
   //fetching the engagement via sharedcount
   // const fetchEngagement = async (url) => {

@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-=======
 
-
->>>>>>> e200c33f34ab4a912800f5f9732667ceecca76ad
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
@@ -392,7 +388,7 @@ const TopNews = () => {
                     : "bg-transparent text-[#2CFBCD] border-2 border-[#2CFBCD] hover:bg-[#2CFBCD] hover:text-black"
                 } disabled:opacity-50 disabled:cursor-not-allowed`}
               >
-                {isCopied ? "Copied!" : "Copy"}
+                {isCopied ? "Copy" : "Copied"}
               </button>
             </div>
           </div>
