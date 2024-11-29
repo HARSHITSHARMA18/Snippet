@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { Search } from "lucide-react";
+import Link from "next/link";
 
 const Explore = () => {
   const [news, setNews] = useState([]);
@@ -18,35 +19,67 @@ const Explore = () => {
   const SHARED_COUNT_API_KEY = process.env.NEXT_PUBLIC_SHARED_COUNT_API_KEY;
 
   // Fetch news based on genre and time filter
+  // useEffect(() => {
+  //   const fetchNews = async () => {
+  //     const today = new Date();
+  //     const fromDate = new Date(
+  //       today.getTime() -
+  //         (timeFilter === "24h"
+  //           ? 1 * 24 * 60 * 60 * 1000
+  //           : timeFilter === "2d"
+  //           ? 2 * 24 * 60 * 60 * 1000
+  //           : 7 * 24 * 60 * 60 * 1000)
+  //     )
+  //       .toISOString()
+  //       .split("T")[0];
+
+  //     const domains =
+  //       `timesofindia.indiatimes.com,ndtv.com,hindustantimes.com,thehindu.com,indiatoday.in,
+  // foxnews.com,cbc.ca,news24.com,scroll.in,news18.com,google.com/news,bloomberg.com,
+  // business-standard.com,economictimes.indiatimes.com,moneycontrol.com,financialexpress.com,
+  // fortune.com,livemint.com,espncricinfo.com,espn.in,sports.ndtv.com,thebridge.in,
+  // sportstar.thehindu.com,gadgets.ndtv.com,techcrunch.com,digit.in,91mobiles.com,
+  // firstpost.com,buzzfeed.com,entertainmentweekly.com,filmfare.com,koimoi.com,
+  // bollywoodhungama.com,indiaforums.com,pinkvilla.com,thewallstreetjournal.com,cnn.com,bbc.com,nytimes.com,theguardian.com,reuters.com,aljazeera.com,forbes.com,dainikbhaskar.com,
+  //       amarujala.com,patrikalive.com,business-standard.com,economictimes.indiatimes.com
+  //     `.replace(/\s+/g, "");
+  //     const url = `https://newsapi.org/v2/everything?q=${selectedGenre}&domains=${domains}&from=${fromDate}&sortBy=popularity&apiKey=${API_KEY}`;
+
+  //     try {
+  //       const response = await fetch(url);
+  //       console.log(response);
+  //       const data = await response.json();
+
+  //       const validNews = data.articles
+  //         .filter((article) => article.urlToImage && article.description)
+  //         .slice(0, 15);
+
+  //       const newsWithEngagement = await Promise.all(
+  //         validNews.map(async (article) => {
+  //           const engagement = await fetchEngagement(article.url);
+  //           return { ...article, engagement };
+  //         })
+  //       );
+
+  //       //sort by engagement
+  //       const sortedNews = newsWithEngagement.sort(
+  //         (a, b) => b.engagement - a.engagement
+  //       );
+  //       setNews(sortedNews);
+  //     } catch (error) {
+  //       console.error("Error fetching news:", error);
+  //     }
+  //   };
+
+  //   fetchNews();
+  // }, [selectedGenre, country, timeFilter]);
+
   useEffect(() => {
     const fetchNews = async () => {
-      const today = new Date();
-      const fromDate = new Date(
-        today.getTime() -
-          (timeFilter === "24h"
-            ? 1 * 24 * 60 * 60 * 1000
-            : timeFilter === "2d"
-            ? 2 * 24 * 60 * 60 * 1000
-            : 7 * 24 * 60 * 60 * 1000)
-      )
-        .toISOString()
-        .split("T")[0];
-
-      const domains =
-        `timesofindia.indiatimes.com,ndtv.com,hindustantimes.com,thehindu.com,indiatoday.in,
-  foxnews.com,cbc.ca,news24.com,scroll.in,news18.com,google.com/news,bloomberg.com,
-  business-standard.com,economictimes.indiatimes.com,moneycontrol.com,financialexpress.com,
-  fortune.com,livemint.com,espncricinfo.com,espn.in,sports.ndtv.com,thebridge.in,
-  sportstar.thehindu.com,gadgets.ndtv.com,techcrunch.com,digit.in,91mobiles.com,
-  firstpost.com,buzzfeed.com,entertainmentweekly.com,filmfare.com,koimoi.com,
-  bollywoodhungama.com,indiaforums.com,pinkvilla.com,thewallstreetjournal.com,cnn.com,bbc.com,nytimes.com,theguardian.com,reuters.com,aljazeera.com,forbes.com,dainikbhaskar.com,
-        amarujala.com,patrikalive.com,business-standard.com,economictimes.indiatimes.com
-      `.replace(/\s+/g, "");
-      const url = `https://newsapi.org/v2/everything?q=${selectedGenre}&domains=${domains}&from=${fromDate}&sortBy=popularity&apiKey=${API_KEY}`;
-
       try {
-        const response = await fetch(url);
-        console.log(response);
+        const response = await fetch(
+          `/api/news?genre=${selectedGenre}&timeFilter=${timeFilter}`
+        );
         const data = await response.json();
 
         const validNews = data.articles
@@ -60,7 +93,6 @@ const Explore = () => {
           })
         );
 
-        //sort by engagement
         const sortedNews = newsWithEngagement.sort(
           (a, b) => b.engagement - a.engagement
         );
@@ -71,7 +103,7 @@ const Explore = () => {
     };
 
     fetchNews();
-  }, [selectedGenre, country, timeFilter]);
+  }, []);
 
   //fetching the engagement via sharedcount
   const fetchEngagement = async (url) => {
@@ -438,14 +470,16 @@ LinkedinPost :
                   </span>
                 </div>
                 <div className="flex flex-row items-center justify-center mt-4 mb-4 gap-4">
-                  <button
-                    href={article.url}
-                    className="bg-[#2CFBCD] hover:bg-[#2CFBCD]/60 text-black font-bold py-2 px-4  rounded-full md:rounded-md transition-colors"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Read Full Article
-                  </button>
+                  <Link href={article.url} target="_blank">
+                    <button
+                      href={article.url}
+                      className="bg-[#2CFBCD] hover:bg-[#2CFBCD]/60 text-black font-bold py-2 px-4  rounded-full md:rounded-md transition-colors"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Read Full Article
+                    </button>
+                  </Link>
 
                   <button
                     onClick={(e) => {
