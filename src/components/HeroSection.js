@@ -21,15 +21,14 @@ export default function HeroSection() {
       <div className="flex items-center justify-center h-full p-[8rem] pb-[2rem]">
         <div className="text-center space-y-6 px-4 py-12">
           <h1 className="text-3xl font-bold sm:text-4xl md:text-7xl lg:text-7xl ">
-            Latest News to{" "}
+            Latest News into{" "}
             <span className="text-[#2CFBCD] motion-safe:animate-pulse">
-              Content
+              Posts
             </span>{" "}
             In Minutes
           </h1>
           <p className="text-base sm:text-lg text-gray-400 md:text-xl max-w-xl mx-auto">
-            Grow Your Audience 10X with latest updates around AI, Tech, Business
-            and more
+             Grow Your Audience 10x by turning Latest Trends to Engaging Posts
           </p>
           <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
             <Link href ={"/explore"}>

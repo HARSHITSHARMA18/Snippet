@@ -6,7 +6,7 @@ import Link from "next/link";
 
 const Explore = () => {
   const [news, setNews] = useState([]);
-  const [selectedGenre, setSelectedGenre] = useState("general"); // Default genre
+  const [selectedGenre, setSelectedGenre] = useState("General"); // Default genre
   //const [country, setcountry] = useState("india");
   const [timeFilter, setTimeFilter] = useState("24h"); // Default time filter
   const [expandedTile, setExpandedTile] = useState(null); // For expanded news tile
@@ -458,11 +458,12 @@ LinkedinPost :
         <section className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 space-y-4 sm:space-y-0 w-full">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 w-full">
             <div className="genre-buttons flex flex-wrap -mx-1 w-full sm:w-auto">
+
               {genres.map((genre, index) => (
                 <button
                   key={index}
                   className={`genre-button flex items-center space-x-2 p-2 rounded-lg border border-white/30 font-medium hover:bg-[#2CFBCD] hover:text-black duration-300 m-1 text-sm sm:text-base ${
-                    selectedGenre === genre
+                    selectedGenre == genre
                       ? "active bg-[#2CFBCD] text-black hover:text-black"
                       : ""
                   }`}
