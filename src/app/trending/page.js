@@ -113,6 +113,7 @@ const TopNews = () => {
   const handleCopy = () => {
     navigator.clipboard.writeText(generatedPost);
     setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000);
     
   };
 
