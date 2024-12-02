@@ -113,7 +113,7 @@ const TopNews = () => {
   const handleCopy = () => {
     navigator.clipboard.writeText(generatedPost);
     setIsCopied(true);
-    setTimeout(() => setIsCopied(false), 2000);
+    
   };
 
  
@@ -129,6 +129,7 @@ const TopNews = () => {
     setModalNews(null);
     setGeneratedPost("");
     setLoadingState("");
+    setIsCopied(false);
   };
 
   // Function to generate LinkedIn post using the Prompt API
@@ -158,6 +159,7 @@ const TopNews = () => {
         }
       }
       const result = await summarizer.summarize(desc);
+      summarizer.destroy();
       //await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate delay
       const { available, defaultTemperature, defaultTopK, maxTopK } =
         await ai.languageModel.capabilities();

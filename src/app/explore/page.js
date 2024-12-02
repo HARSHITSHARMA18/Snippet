@@ -202,6 +202,7 @@ const Explore = () => {
     setModalNews(article);
     setGeneratedPost("");
     generateLinkedInPost(article.description);
+    //setisCloseClicked(false);
   };
 
   // Close modal
@@ -209,6 +210,8 @@ const Explore = () => {
     setModalNews(null);
     setGeneratedPost("");
     setLoadingState("");
+    setIsCopied(false);
+
   };
 
   const handleGenreClick = (genre) => {
@@ -247,13 +250,13 @@ const Explore = () => {
   const handleCopy = () => {
     navigator.clipboard.writeText(generatedPost);
     setIsCopied(true);
-    setTimeout(() => setIsCopied(false), 2000);
   };
 
   // Function to generate LinkedIn post using the Prompt API
   const generateLinkedInPost = async (desc) => {
     try {
       console.log("generating");
+     
       setLoadingState("Reading Contents");
       setIsGenerating(true);
       setGeneratedPost(""); // Clear previous output
@@ -297,6 +300,7 @@ const Explore = () => {
         }
       }
       const result = await summarizer.summarize(desc);
+      summarizer.destroy();
       //await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate delay
 
       const { available, defaultTemperature, defaultTopK, maxTopK } =
@@ -386,11 +390,12 @@ LinkedinPost :
       // Get the generated LinkedIn post
       const result1 = await session.promptStreaming(prompt);
       for await (const chunk of result1) {
+       
         setGeneratedPost(chunk);
         //return chunk;
       }
       setIsGenerating(false);
-
+      
       session.destroy();
 
       //return; // Clean up the generated result
