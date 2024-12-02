@@ -10,8 +10,9 @@ const TopNews = () => {
   const [modalNews, setModalNews] = useState(null); //for modal pop-up
   const [generatedPost, setGeneratedPost] = useState(""); //for the generated linkedin post
   const [isGenerating, setIsGenerating] = useState(false); // Controls the generation flow
-  const [isCopied,setIsCopied] = useState("false");
+  const [isCopied,setIsCopied] = useState(false);
   const [loadingState, setLoadingState] = useState("");
+
   const textareaRef = useRef(null);
 
   const API_KEY = process.env.NEXT_PUBLIC_API_KEY; // Your NewsAPI key
@@ -113,7 +114,7 @@ const TopNews = () => {
   const handleCopy = () => {
     navigator.clipboard.writeText(generatedPost);
     setIsCopied(true);
-    setTimeout(() => setIsCopied(false), 2000);
+    //setTimeout(() => setIsCopied(false), 500);
     
   };
 
@@ -391,7 +392,7 @@ const TopNews = () => {
                     : "bg-transparent text-[#2CFBCD] border-2 border-[#2CFBCD] hover:bg-[#2CFBCD] hover:text-black"
                 } disabled:opacity-50 disabled:cursor-not-allowed`}
               >
-                {isCopied ? "Copy" : "Copied"}
+                {isCopied ? "Copied" : "Copy"}
               </button>
             </div>
           </div>

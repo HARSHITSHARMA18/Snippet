@@ -250,7 +250,7 @@ const Explore = () => {
   const handleCopy = () => {
     navigator.clipboard.writeText(generatedPost);
     setIsCopied(true);
-    setTimeout(() => setIsCopied(false), 2000);
+    //setTimeout(() => setIsCopied(false), 2000);
   };
 
   // Function to generate LinkedIn post using the Prompt API
